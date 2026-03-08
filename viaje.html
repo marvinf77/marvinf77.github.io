@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<title>Nuestros Viajes ✈️</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+color:white;
+text-align:center;
+
+background-image:url("viaje.jpg");
+background-size:contain;
+background-position:center;
+background-repeat:no-repeat;
+background-attachment:fixed;
+background-color:black;
+}
+
+/* CAPA OSCURA */
+
+.overlay{
+background:rgba(0,0,0,0.45);
+min-height:100vh;
+padding:60px 20px;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+/* GRID */
+
+.marco{
+
+display:grid;
+
+grid-template-columns:220px 500px 220px;
+grid-template-rows:auto auto auto auto;
+
+gap:20px;
+align-items:center;
+
+}
+
+/* TEXTO */
+
+.texto{
+grid-column:2;
+grid-row:2 / span 2;
+
+background:rgba(0,0,0,0.65);
+padding:30px;
+border-radius:15px;
+}
+
+h1{
+font-size:45px;
+}
+
+p{
+font-size:20px;
+line-height:1.6;
+}
+
+/* IMAGENES */
+
+.foto{
+width:100%;
+border-radius:15px;
+box-shadow:0px 10px 25px rgba(0,0,0,0.5);
+transition:0.4s;
+}
+
+.foto:hover{
+transform:scale(1.08);
+}
+
+/* POSICIONES */
+
+.arriba{
+grid-column:2;
+grid-row:1;
+}
+
+.izq1{
+grid-column:1;
+grid-row:2;
+}
+
+.izq2{
+grid-column:1;
+grid-row:3;
+}
+
+.der1{
+grid-column:3;
+grid-row:2;
+}
+
+.der2{
+grid-column:3;
+grid-row:3;
+}
+
+.abajo{
+grid-column:2;
+grid-row:4;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="overlay">
+
+<div class="marco">
+
+<img class="foto arriba" src="foto5.jpg">
+
+<img class="foto izq1" src="foto6.jpg">
+<img class="foto izq2" src="foto7.jpg">
+
+<div class="texto">
+
+<h1>✈️ Nuestro Viaje Juntos 🌎</h1>
+
+<p>
+Esto recién empieza.  
+Quiero que sigamos viajando mucho juntos, descubriendo nuevos lugares,
+riendo en cada aventura y conquistando el mundo paso a paso.
+</p>
+
+<p>
+Porque los mejores destinos no son los lugares…
+son los momentos que vivimos juntos ❤️
+</p>
+
+<h2>Vamos a seguir viajando y conquistar el mundo juntos 🌍</h2>
+
+</div>
+
+<img class="foto der1" src="foto8.jpg">
+<img class="foto der2" src="foto9.jpg">
+
+<img class="foto abajo" src="foto10.jpg">
+
+</div>
+
+</div>
+
+<!-- MUSICA -->
+
+<audio id="musica" loop>
+<source src="musica-viaje.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+var musica = document.getElementById("musica");
+
+/* intenta reproducir al cargar */
+
+window.addEventListener("load", function(){
+    musica.play().catch(function(){});
+});
+
+/* si el navegador lo bloquea se activa al primer clic */
+
+document.addEventListener("click", function(){
+    musica.play();
+});
+
+</script>
+
+</body>
+
+</html>
