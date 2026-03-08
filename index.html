@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<title>Para Mariela ❤️</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#f5e6d3;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:40px;
+overflow-x:hidden;
+}
+
+/* GRID PRINCIPAL */
+
+.contenedor{
+display:grid;
+grid-template-columns:200px 520px 200px;
+grid-template-rows:auto auto auto auto;
+gap:20px;
+align-items:center;
+justify-items:center;
+}
+
+/* TEXTO */
+
+.centro{
+grid-column:2;
+grid-row:2;
+
+text-align:center;
+background:#fff1e6;
+padding:30px;
+border-radius:15px;
+box-shadow:0px 10px 30px rgba(0,0,0,0.2);
+border:2px solid #e6c9a8;
+}
+
+h1{
+font-size:45px;
+margin-bottom:10px;
+}
+
+p{
+font-size:18px;
+line-height:1.6;
+}
+
+/* IMAGENES */
+
+.foto{
+width:180px;
+border-radius:15px;
+box-shadow:0px 8px 25px rgba(0,0,0,0.3);
+}
+
+/* FILAS SUPERIORES */
+
+.arriba{
+grid-column:2;
+grid-row:1;
+display:flex;
+gap:20px;
+}
+
+/* FILAS INFERIORES */
+
+.abajo{
+grid-column:2;
+grid-row:4;
+display:flex;
+gap:20px;
+}
+
+/* LADO IZQUIERDO */
+
+.izquierda{
+grid-column:1;
+grid-row:2;
+display:flex;
+flex-direction:column;
+gap:20px;
+}
+
+/* LADO DERECHO */
+
+.derecha{
+grid-column:3;
+grid-row:2;
+display:flex;
+flex-direction:column;
+gap:20px;
+}
+
+/* BOTONES */
+
+.botones{
+margin-top:25px;
+}
+
+button{
+padding:15px 30px;
+font-size:18px;
+margin:10px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+
+.si{
+background:#4CAF50;
+color:white;
+}
+
+.no{
+background:#ff3b3b;
+color:white;
+}
+
+/* ROSAS */
+
+.rosa{
+position:fixed;
+top:-50px;
+font-size:30px;
+animation:caer linear forwards;
+}
+
+@keyframes caer{
+0%{transform:translateY(-50px) rotate(0deg);}
+100%{transform:translateY(110vh) rotate(360deg);}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="contenedor">
+
+<!-- ARRIBA -->
+
+<div class="arriba">
+<img class="foto" src="foto1.jpeg">
+<img class="foto" src="foto2.jpeg">
+</div>
+
+<!-- IZQUIERDA -->
+
+<div class="izquierda">
+<img class="foto" src="foto3.jpeg">
+<img class="foto" src="foto4.jpeg">
+</div>
+
+<!-- TEXTO CENTRAL -->
+
+<div class="centro">
+
+<h1>Para Mariela ❤️</h1>
+
+<p>
+Eres una persona única, inteligente y brillante. Desde que te conocí hubo algo en ti que me cautivó, algo especial que te hace diferente.
+</p>
+
+<p>
+Admiro tu fuerza, tu forma de ver la vida y la manera en que siempre das lo mejor de ti.
+</p>
+
+<p>
+Dicen que la mujer perfecta no existe… pero yo creo que sí.
+</p>
+Es intensa, a veces insegura, demandante, celosa, ingenua, caprichosa, un poco trompuda cuando algo no le gusta y hasta un poquito resentida cuando la hacen enojar. Y ¿sabes qué? Me encanta, porque es igualita a vos.
+</p>
+
+<p>
+Porque todo eso también forma parte de lo que te hace real, auténtica y absolutamente especial para mí.
+</p>
+
+<h2>Feliz Día de la Mujer ❤️</h2>
+
+<h3>¿Quieres viajar conmigo? ✈️</h3>
+
+<div class="botones">
+
+<button class="si" onclick="window.location.href='viaje.html'">
+SI ❤️
+</button>
+
+<button class="no" onclick="window.location.href='index.html'">
+NO 😢
+</button>
+
+</div>
+
+</div>
+
+<!-- DERECHA -->
+
+<div class="derecha">
+
+<img class="foto" src="foto5.jpeg">
+
+<video class="foto" autoplay loop muted playsinline>
+<source src="foto6.mp4" type="video/mp4">
+</video>
+
+</div>
+
+<!-- ABAJO -->
+
+<div class="abajo">
+<img class="foto" src="foto7.jpeg">
+<img class="foto" src="foto8.jpeg">
+</div>
+
+</div>
+
+<audio id="musica" loop>
+<source src="musica.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+var audio = document.getElementById("musica");
+
+window.addEventListener("load", function(){
+audio.play().catch(function(){});
+});
+
+document.addEventListener("click", function(){
+audio.play();
+});
+
+function crearRosa(){
+
+const rosa=document.createElement("div");
+
+rosa.classList.add("rosa");
+
+rosa.innerHTML="🌹";
+
+rosa.style.left=Math.random()*100+"vw";
+
+rosa.style.animationDuration=(5+Math.random()*5)+"s";
+
+document.body.appendChild(rosa);
+
+setTimeout(()=>{
+rosa.remove();
+},10000);
+
+}
+
+setInterval(crearRosa,500);
+
+</script>
+
+</body>
+
+</html>
