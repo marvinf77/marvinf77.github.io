@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es>
+
 <head>
 
 <meta charset="UTF-8">
@@ -17,12 +18,11 @@ height:100vh;
 overflow:hidden;
 }
 
-/* PANEL TEXTO */
-
 #panelTexto{
 width:420px;
 padding:40px;
 background:rgba(0,0,0,0.75);
+overflow:auto;
 }
 
 h1{font-size:34px;}
@@ -32,14 +32,10 @@ font-size:18px;
 line-height:1.6;
 }
 
-/* GLOBO */
-
 #globo{
 flex:1;
 position:relative;
 }
-
-/* POPUP */
 
 #popup{
 position:absolute;
@@ -51,18 +47,60 @@ padding:20px;
 border-radius:12px;
 display:none;
 z-index:10;
-}
-
-#popup img{
-width:240px;
-margin:10px;
-border-radius:10px;
+max-width:90%;
 }
 
 #cerrar{
 color:red;
 cursor:pointer;
 font-weight:bold;
+margin-bottom:10px;
+}
+
+#fotos{
+display:flex;
+overflow-x:auto;
+gap:15px;
+scroll-snap-type:x mandatory;
+-webkit-overflow-scrolling:touch;
+}
+
+#fotos img{
+width:260px;
+border-radius:10px;
+flex:0 0 auto;
+scroll-snap-align:center;
+cursor:pointer;
+}
+
+#visor{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+display:none;
+justify-content:center;
+align-items:center;
+z-index:50;
+}
+
+#visor img{
+max-width:95%;
+max-height:95%;
+}
+
+#paisLabel{
+position:absolute;
+top:30px;
+left:50%;
+transform:translateX(-50%);
+font-size:34px;
+font-weight:bold;
+opacity:0;
+transition:0.6s;
+pointer-events:none;
 }
 
 </style>
@@ -73,7 +111,7 @@ font-weight:bold;
 
 <div id="panelTexto">
 
-<h1>✈️ Nuestros Viaje Juntos 🌎</h1>
+<h1>✈️ Nuestros Viajes Juntos 🌎</h1>
 
 <p>
 Esto recién empieza.  
@@ -90,11 +128,17 @@ son los momentos que vivimos juntos ❤️
 
 </div>
 
-<div id="globo"></div>
+<div id="globo">
+<div id="paisLabel"></div>
+</div>
 
 <div id="popup">
 <div id="cerrar">Cerrar</div>
 <div id="fotos"></div>
+</div>
+
+<div id="visor">
+<img id="visorImg">
 </div>
 
 <audio id="musica" loop>
@@ -106,11 +150,11 @@ son los momentos que vivimos juntos ❤️
 
 <script>
 
-const container = document.getElementById("globo");
+const container=document.getElementById("globo");
 
-const scene = new THREE.Scene();
+const scene=new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(
+const camera=new THREE.PerspectiveCamera(
 60,
 container.clientWidth/window.innerHeight,
 0.1,
@@ -127,20 +171,22 @@ container.appendChild(renderer.domElement);
 const controls=new THREE.OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
 
+
 /* LUCES */
 
-scene.add(new THREE.AmbientLight(0xffffff,0.5));
+scene.add(new THREE.AmbientLight(0xffffff,0.6));
 
 const light=new THREE.DirectionalLight(0xffffff,1);
 light.position.set(5,3,5);
 scene.add(light);
+
 
 /* ESTRELLAS */
 
 const starGeo=new THREE.BufferGeometry();
 const starVertices=[];
 
-for(let i=0;i<10000;i++){
+for(let i=0;i<12000;i++){
 
 starVertices.push(
 (Math.random()-0.5)*2000,
@@ -161,6 +207,7 @@ const stars=new THREE.Points(starGeo,starMat);
 
 scene.add(stars);
 
+
 /* TEXTURAS */
 
 const loader=new THREE.TextureLoader();
@@ -173,6 +220,7 @@ const cloudTexture=loader.load(
 "https://threejs.org/examples/textures/planets/earth_clouds_1024.png"
 );
 
+
 /* TIERRA */
 
 const earth=new THREE.Mesh(
@@ -181,6 +229,7 @@ new THREE.MeshStandardMaterial({map:earthTexture})
 );
 
 scene.add(earth);
+
 
 /* NUBES */
 
@@ -194,7 +243,8 @@ transparent:true
 
 scene.add(clouds);
 
-/* LAT LON */
+
+/* CONVERTIR LAT LON */
 
 function latLon(lat,lon,r){
 
@@ -209,11 +259,12 @@ r*Math.sin(phi)*Math.sin(theta)
 
 }
 
+
 /* MARCADORES */
 
 const markers=[];
 
-function marcador(lat,lon,flag,fotos){
+function marcador(lat,lon,flag,fotos,pais){
 
 const tex=loader.load(flag);
 
@@ -225,7 +276,7 @@ sprite.position.copy(latLon(lat,lon,1.05));
 
 sprite.scale.set(0.18,0.12,1);
 
-sprite.userData.fotos=fotos;
+sprite.userData={fotos,pais};
 
 earth.add(sprite);
 
@@ -233,27 +284,39 @@ markers.push(sprite);
 
 }
 
+
 /* PAISES */
 
-marcador(-33.45,-70.66,"https://flagcdn.com/w80/cl.png",["chile1.jpg","chile2.jpg"]);
-marcador(-15.79,-47.88,"https://flagcdn.com/w80/br.png",["brasil1.jpg","brasil2.jpg"]);
-marcador(22.32,114.17,"https://flagcdn.com/w80/hk.png",["hk1.jpg","hk2.jpg"]);
-marcador(18.01,-76.79,"https://flagcdn.com/w80/jm.png",["jamaica1.jpg","jamaica2.jpg"]);
-marcador(-12.04,-77.03,"https://flagcdn.com/w80/pe.png",["peru1.jpg","peru2.jpg"]);
-marcador(4.71,-74.07,"https://flagcdn.com/w80/co.png",["colombia1.jpg","colombia2.jpg"]);
-marcador(8.98,-79.52,"https://flagcdn.com/w80/pa.png",["panama1.jpg","panama2.jpg"]);
+marcador(-33.45,-70.66,"https://flagcdn.com/w80/cl.png",["chile1.jpg","chile2.jpg"],"Chile");
+marcador(-15.79,-47.88,"https://flagcdn.com/w80/br.png",["brasil1.jpg","brasil2.jpg"],"Brasil");
+marcador(22.32,114.17,"https://flagcdn.com/w80/hk.png",["hk1.jpg","hk2.jpg"],"Hong Kong");
+marcador(18.01,-76.79,"https://flagcdn.com/w80/jm.png",["jamaica1.jpg","jamaica2.jpg"],"Jamaica");
+marcador(-12.04,-77.03,"https://flagcdn.com/w80/pe.png",["peru1.jpg","peru2.jpg"],"Perú");
+marcador(4.71,-74.07,"https://flagcdn.com/w80/co.png",["colombia1.jpg","colombia2.jpg"],"Colombia");
+marcador(8.98,-79.52,"https://flagcdn.com/w80/pa.png",["panama1.jpg","panama2.jpg"],"Panamá");
+
 
 /* CLICK */
 
 const raycaster=new THREE.Raycaster();
 const mouse=new THREE.Vector2();
 
-renderer.domElement.addEventListener("click",(event)=>{
+function detectar(event){
+
+let x,y;
+
+if(event.touches){
+x=event.touches[0].clientX;
+y=event.touches[0].clientY;
+}else{
+x=event.clientX;
+y=event.clientY;
+}
 
 const rect=renderer.domElement.getBoundingClientRect();
 
-mouse.x=((event.clientX-rect.left)/rect.width)*2-1;
-mouse.y=-((event.clientY-rect.top)/rect.height)*2+1;
+mouse.x=((x-rect.left)/rect.width)*2-1;
+mouse.y=-((y-rect.top)/rect.height)*2+1;
 
 raycaster.setFromCamera(mouse,camera);
 
@@ -261,12 +324,18 @@ const hit=raycaster.intersectObjects(markers);
 
 if(hit.length>0){
 
-const fotos=hit[0].object.userData.fotos;
+const data=hit[0].object.userData;
+
+const label=document.getElementById("paisLabel");
+label.innerText=data.pais;
+label.style.opacity=1;
+
+setTimeout(()=>label.style.opacity=0,2000);
 
 let html="";
 
-fotos.forEach(f=>{
-html+=`<img src="${f}">`;
+data.fotos.forEach(f=>{
+html+=`<img src="${f}" onclick="abrirFoto('${f}')">`;
 });
 
 document.getElementById("fotos").innerHTML=html;
@@ -275,23 +344,41 @@ document.getElementById("popup").style.display="block";
 
 }
 
-});
+}
+
+renderer.domElement.addEventListener("click",detectar);
+renderer.domElement.addEventListener("touchstart",detectar);
+
+
+/* VISOR FOTO */
+
+function abrirFoto(src){
+
+document.getElementById("visorImg").src=src;
+
+document.getElementById("visor").style.display="flex";
+
+}
+
+document.getElementById("visor").onclick=function(){
+this.style.display="none";
+};
+
 
 /* CERRAR */
 
 document.getElementById("cerrar").onclick=function(){
-
 document.getElementById("popup").style.display="none";
-
 };
+
 
 /* MUSICA */
 
 const musica=document.getElementById("musica");
 
-document.addEventListener("click",function(){
-musica.play();
-},{once:true});
+document.addEventListener("click",()=>musica.play(),{once:true});
+document.addEventListener("touchstart",()=>musica.play(),{once:true});
+
 
 /* ANIMACION */
 
@@ -302,6 +389,14 @@ requestAnimationFrame(animate);
 controls.update();
 
 clouds.rotation.y+=0.0005;
+
+markers.forEach((m,i)=>{
+
+const s=0.18+Math.sin(Date.now()*0.003+i)*0.02;
+
+m.scale.set(s,s*0.66,1);
+
+});
 
 renderer.render(scene,camera);
 
