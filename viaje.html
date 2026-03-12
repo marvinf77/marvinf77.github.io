@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="es>
-
+<html lang="es">
 <head>
 
 <meta charset="UTF-8">
@@ -114,7 +113,7 @@ pointer-events:none;
 <h1>✈️ Nuestros Viajes Juntos 🌎</h1>
 
 <p>
-Esto recién empieza.  
+Esto recién empieza.
 Quiero que sigamos viajando mucho juntos, descubriendo nuevos lugares,
 riendo en cada aventura y conquistando el mundo paso a paso.
 </p>
@@ -150,6 +149,13 @@ son los momentos que vivimos juntos ❤️
 
 <script>
 
+/* VARIABLES FOTOS */
+
+let fotosActuales=[];
+let indiceFoto=0;
+
+/* ESCENA */
+
 const container=document.getElementById("globo");
 
 const scene=new THREE.Scene();
@@ -171,7 +177,6 @@ container.appendChild(renderer.domElement);
 const controls=new THREE.OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true;
 
-
 /* LUCES */
 
 scene.add(new THREE.AmbientLight(0xffffff,0.6));
@@ -179,7 +184,6 @@ scene.add(new THREE.AmbientLight(0xffffff,0.6));
 const light=new THREE.DirectionalLight(0xffffff,1);
 light.position.set(5,3,5);
 scene.add(light);
-
 
 /* ESTRELLAS */
 
@@ -207,7 +211,6 @@ const stars=new THREE.Points(starGeo,starMat);
 
 scene.add(stars);
 
-
 /* TEXTURAS */
 
 const loader=new THREE.TextureLoader();
@@ -220,7 +223,6 @@ const cloudTexture=loader.load(
 "https://threejs.org/examples/textures/planets/earth_clouds_1024.png"
 );
 
-
 /* TIERRA */
 
 const earth=new THREE.Mesh(
@@ -229,7 +231,6 @@ new THREE.MeshStandardMaterial({map:earthTexture})
 );
 
 scene.add(earth);
-
 
 /* NUBES */
 
@@ -243,8 +244,7 @@ transparent:true
 
 scene.add(clouds);
 
-
-/* CONVERTIR LAT LON */
+/* LAT LON */
 
 function latLon(lat,lon,r){
 
@@ -258,7 +258,6 @@ r*Math.sin(phi)*Math.sin(theta)
 );
 
 }
-
 
 /* MARCADORES */
 
@@ -284,17 +283,28 @@ markers.push(sprite);
 
 }
 
-
 /* PAISES */
 
-marcador(-33.45,-70.66,"https://flagcdn.com/w80/cl.png",["chile1.jpg","chile2.jpg"],"Chile");
-marcador(-15.79,-47.88,"https://flagcdn.com/w80/br.png",["brasil1.jpg","brasil2.jpg"],"Brasil");
-marcador(22.32,114.17,"https://flagcdn.com/w80/hk.png",["hk1.jpg","hk2.jpg"],"Hong Kong");
-marcador(18.01,-76.79,"https://flagcdn.com/w80/jm.png",["jamaica1.jpg","jamaica2.jpg"],"Jamaica");
-marcador(-12.04,-77.03,"https://flagcdn.com/w80/pe.png",["peru1.jpg","peru2.jpg"],"Perú");
-marcador(4.71,-74.07,"https://flagcdn.com/w80/co.png",["colombia1.jpg","colombia2.jpg"],"Colombia");
-marcador(8.98,-79.52,"https://flagcdn.com/w80/pa.png",["panama1.jpg","panama2.jpg"],"Panamá");
+marcador(-33.45,-70.66,"https://flagcdn.com/w80/cl.png",
+["chile1.jpg","chile2.jpg","chile3.jpg"],"Chile");
 
+marcador(-15.79,-47.88,"https://flagcdn.com/w80/br.png",
+["brasil1.jpg","brasil2.jpg"],"Brasil");
+
+marcador(4.71,-74.07,"https://flagcdn.com/w80/co.png",
+["colombia1.jpg","colombia2.jpg"],"Colombia");
+
+marcador(8.98,-79.52,"https://flagcdn.com/w80/pa.png",
+["panama1.jpg","panama2.jpg"],"Panamá");
+
+marcador(-12.04,-77.03,"https://flagcdn.com/w80/pe.png",
+["peru1.jpg","peru2.jpg"],"Perú");
+
+marcador(18.01,-76.79,"https://flagcdn.com/w80/jm.png",
+["jamaica1.jpg","jamaica2.jpg"],"Jamaica");
+
+marcador(22.32,114.17,"https://flagcdn.com/w80/hk.png",
+["hk1.jpg","hk2.jpg"],"Hong Kong");
 
 /* CLICK */
 
@@ -334,8 +344,10 @@ setTimeout(()=>label.style.opacity=0,2000);
 
 let html="";
 
-data.fotos.forEach(f=>{
-html+=`<img src="${f}" onclick="abrirFoto('${f}')">`;
+fotosActuales=data.fotos;
+
+data.fotos.forEach((f,i)=>{
+html+=`<img src="${f}" onclick="abrirFoto(${i})">`;
 });
 
 document.getElementById("fotos").innerHTML=html;
@@ -349,28 +361,87 @@ document.getElementById("popup").style.display="block";
 renderer.domElement.addEventListener("click",detectar);
 renderer.domElement.addEventListener("touchstart",detectar);
 
+/* VISOR */
 
-/* VISOR FOTO */
+function abrirFoto(i){
 
-function abrirFoto(src){
+indiceFoto=i;
 
-document.getElementById("visorImg").src=src;
+document.getElementById("visorImg").src=fotosActuales[indiceFoto];
 
 document.getElementById("visor").style.display="flex";
 
 }
 
+function siguienteFoto(){
+
+indiceFoto++;
+
+if(indiceFoto>=fotosActuales.length){
+indiceFoto=0;
+}
+
+document.getElementById("visorImg").src=fotosActuales[indiceFoto];
+
+}
+
+function anteriorFoto(){
+
+indiceFoto--;
+
+if(indiceFoto<0){
+indiceFoto=fotosActuales.length-1;
+}
+
+document.getElementById("visorImg").src=fotosActuales[indiceFoto];
+
+}
+
+/* TECLADO */
+
+document.addEventListener("keydown",(e)=>{
+
+if(document.getElementById("visor").style.display==="flex"){
+
+if(e.key==="ArrowRight") siguienteFoto();
+
+if(e.key==="ArrowLeft") anteriorFoto();
+
+}
+
+});
+
+/* SWIPE */
+
+let touchStartX=0;
+
+document.getElementById("visor").addEventListener("touchstart",(e)=>{
+touchStartX=e.changedTouches[0].screenX;
+});
+
+document.getElementById("visor").addEventListener("touchend",(e)=>{
+
+let touchEndX=e.changedTouches[0].screenX;
+
+if(touchEndX < touchStartX-50){
+siguienteFoto();
+}
+
+if(touchEndX > touchStartX+50){
+anteriorFoto();
+}
+
+});
+
+/* CERRAR */
+
 document.getElementById("visor").onclick=function(){
 this.style.display="none";
 };
 
-
-/* CERRAR */
-
 document.getElementById("cerrar").onclick=function(){
 document.getElementById("popup").style.display="none";
 };
-
 
 /* MUSICA */
 
@@ -378,7 +449,6 @@ const musica=document.getElementById("musica");
 
 document.addEventListener("click",()=>musica.play(),{once:true});
 document.addEventListener("touchstart",()=>musica.play(),{once:true});
-
 
 /* ANIMACION */
 
