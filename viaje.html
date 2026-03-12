@@ -1,114 +1,68 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
+
 <meta charset="UTF-8">
-<title>Nuestros Viajes ✈️</title>
+<title>Nuestros Viajes</title>
 
 <style>
 
 body{
 margin:0;
+background:black;
 font-family:Arial;
 color:white;
-text-align:center;
-
-background-image:url("viaje.jpg");
-background-size:contain;
-background-position:center;
-background-repeat:no-repeat;
-background-attachment:fixed;
-background-color:black;
-}
-
-/* CAPA OSCURA */
-
-.overlay{
-background:rgba(0,0,0,0.45);
-min-height:100vh;
-padding:60px 20px;
 display:flex;
-justify-content:center;
-align-items:center;
+height:100vh;
+overflow:hidden;
 }
 
-/* GRID */
+/* PANEL TEXTO */
 
-.marco{
-
-display:grid;
-
-grid-template-columns:220px 500px 220px;
-grid-template-rows:auto auto auto auto;
-
-gap:20px;
-align-items:center;
-
+#panelTexto{
+width:420px;
+padding:40px;
+background:rgba(0,0,0,0.75);
 }
 
-/* TEXTO */
-
-.texto{
-grid-column:2;
-grid-row:2 / span 2;
-
-background:rgba(0,0,0,0.65);
-padding:30px;
-border-radius:15px;
-}
-
-h1{
-font-size:45px;
-}
+h1{font-size:34px;}
 
 p{
-font-size:20px;
+font-size:18px;
 line-height:1.6;
 }
 
-/* IMAGENES */
+/* GLOBO */
 
-.foto{
-width:100%;
-border-radius:15px;
-box-shadow:0px 10px 25px rgba(0,0,0,0.5);
-transition:0.4s;
+#globo{
+flex:1;
+position:relative;
 }
 
-.foto:hover{
-transform:scale(1.08);
+/* POPUP */
+
+#popup{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+padding:20px;
+border-radius:12px;
+display:none;
+z-index:10;
 }
 
-/* POSICIONES */
-
-.arriba{
-grid-column:2;
-grid-row:1;
+#popup img{
+width:240px;
+margin:10px;
+border-radius:10px;
 }
 
-.izq1{
-grid-column:1;
-grid-row:2;
-}
-
-.izq2{
-grid-column:1;
-grid-row:3;
-}
-
-.der1{
-grid-column:3;
-grid-row:2;
-}
-
-.der2{
-grid-column:3;
-grid-row:3;
-}
-
-.abajo{
-grid-column:2;
-grid-row:4;
+#cerrar{
+color:red;
+cursor:pointer;
+font-weight:bold;
 }
 
 </style>
@@ -117,18 +71,9 @@ grid-row:4;
 
 <body>
 
-<div class="overlay">
+<div id="panelTexto">
 
-<div class="marco">
-
-<img class="foto arriba" src="foto5.jpg">
-
-<img class="foto izq1" src="foto6.jpg">
-<img class="foto izq2" src="foto7.jpg">
-
-<div class="texto">
-
-<h1>✈️ Nuestro Viaje Juntos 🌎</h1>
+<h1>✈️ Nuestros Viaje Juntos 🌎</h1>
 
 <p>
 Esto recién empieza.  
@@ -145,39 +90,226 @@ son los momentos que vivimos juntos ❤️
 
 </div>
 
-<img class="foto der1" src="foto8.jpg">
-<img class="foto der2" src="foto9.jpg">
+<div id="globo"></div>
 
-<img class="foto abajo" src="foto10.jpg">
-
+<div id="popup">
+<div id="cerrar">Cerrar</div>
+<div id="fotos"></div>
 </div>
-
-</div>
-
-<!-- MUSICA -->
 
 <audio id="musica" loop>
 <source src="musica-viaje.mp3" type="audio/mpeg">
 </audio>
 
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
 <script>
 
-var musica = document.getElementById("musica");
+const container = document.getElementById("globo");
 
-/* intenta reproducir al cargar */
+const scene = new THREE.Scene();
 
-window.addEventListener("load", function(){
-    musica.play().catch(function(){});
+const camera = new THREE.PerspectiveCamera(
+60,
+container.clientWidth/window.innerHeight,
+0.1,
+1000
+);
+
+camera.position.z=3;
+
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(container.clientWidth,window.innerHeight);
+
+container.appendChild(renderer.domElement);
+
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+
+/* LUCES */
+
+scene.add(new THREE.AmbientLight(0xffffff,0.5));
+
+const light=new THREE.DirectionalLight(0xffffff,1);
+light.position.set(5,3,5);
+scene.add(light);
+
+/* ESTRELLAS */
+
+const starGeo=new THREE.BufferGeometry();
+const starVertices=[];
+
+for(let i=0;i<10000;i++){
+
+starVertices.push(
+(Math.random()-0.5)*2000,
+(Math.random()-0.5)*2000,
+(Math.random()-0.5)*2000
+);
+
+}
+
+starGeo.setAttribute(
+'position',
+new THREE.Float32BufferAttribute(starVertices,3)
+);
+
+const starMat=new THREE.PointsMaterial({color:0xffffff});
+
+const stars=new THREE.Points(starGeo,starMat);
+
+scene.add(stars);
+
+/* TEXTURAS */
+
+const loader=new THREE.TextureLoader();
+
+const earthTexture=loader.load(
+"https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg"
+);
+
+const cloudTexture=loader.load(
+"https://threejs.org/examples/textures/planets/earth_clouds_1024.png"
+);
+
+/* TIERRA */
+
+const earth=new THREE.Mesh(
+new THREE.SphereGeometry(1,64,64),
+new THREE.MeshStandardMaterial({map:earthTexture})
+);
+
+scene.add(earth);
+
+/* NUBES */
+
+const clouds=new THREE.Mesh(
+new THREE.SphereGeometry(1.01,64,64),
+new THREE.MeshStandardMaterial({
+map:cloudTexture,
+transparent:true
+})
+);
+
+scene.add(clouds);
+
+/* LAT LON */
+
+function latLon(lat,lon,r){
+
+const phi=(90-lat)*(Math.PI/180);
+const theta=(lon+180)*(Math.PI/180);
+
+return new THREE.Vector3(
+-(r*Math.sin(phi)*Math.cos(theta)),
+r*Math.cos(phi),
+r*Math.sin(phi)*Math.sin(theta)
+);
+
+}
+
+/* MARCADORES */
+
+const markers=[];
+
+function marcador(lat,lon,flag,fotos){
+
+const tex=loader.load(flag);
+
+const mat=new THREE.SpriteMaterial({map:tex});
+
+const sprite=new THREE.Sprite(mat);
+
+sprite.position.copy(latLon(lat,lon,1.05));
+
+sprite.scale.set(0.18,0.12,1);
+
+sprite.userData.fotos=fotos;
+
+earth.add(sprite);
+
+markers.push(sprite);
+
+}
+
+/* PAISES */
+
+marcador(-33.45,-70.66,"https://flagcdn.com/w80/cl.png",["chile1.jpg","chile2.jpg"]);
+marcador(-15.79,-47.88,"https://flagcdn.com/w80/br.png",["brasil1.jpg","brasil2.jpg"]);
+marcador(22.32,114.17,"https://flagcdn.com/w80/hk.png",["hk1.jpg","hk2.jpg"]);
+marcador(18.01,-76.79,"https://flagcdn.com/w80/jm.png",["jamaica1.jpg","jamaica2.jpg"]);
+marcador(-12.04,-77.03,"https://flagcdn.com/w80/pe.png",["peru1.jpg","peru2.jpg"]);
+marcador(4.71,-74.07,"https://flagcdn.com/w80/co.png",["colombia1.jpg","colombia2.jpg"]);
+marcador(8.98,-79.52,"https://flagcdn.com/w80/pa.png",["panama1.jpg","panama2.jpg"]);
+
+/* CLICK */
+
+const raycaster=new THREE.Raycaster();
+const mouse=new THREE.Vector2();
+
+renderer.domElement.addEventListener("click",(event)=>{
+
+const rect=renderer.domElement.getBoundingClientRect();
+
+mouse.x=((event.clientX-rect.left)/rect.width)*2-1;
+mouse.y=-((event.clientY-rect.top)/rect.height)*2+1;
+
+raycaster.setFromCamera(mouse,camera);
+
+const hit=raycaster.intersectObjects(markers);
+
+if(hit.length>0){
+
+const fotos=hit[0].object.userData.fotos;
+
+let html="";
+
+fotos.forEach(f=>{
+html+=`<img src="${f}">`;
 });
 
-/* si el navegador lo bloquea se activa al primer clic */
+document.getElementById("fotos").innerHTML=html;
 
-document.addEventListener("click", function(){
-    musica.play();
+document.getElementById("popup").style.display="block";
+
+}
+
 });
+
+/* CERRAR */
+
+document.getElementById("cerrar").onclick=function(){
+
+document.getElementById("popup").style.display="none";
+
+};
+
+/* MUSICA */
+
+const musica=document.getElementById("musica");
+
+document.addEventListener("click",function(){
+musica.play();
+},{once:true});
+
+/* ANIMACION */
+
+function animate(){
+
+requestAnimationFrame(animate);
+
+controls.update();
+
+clouds.rotation.y+=0.0005;
+
+renderer.render(scene,camera);
+
+}
+
+animate();
 
 </script>
 
 </body>
-
 </html>
