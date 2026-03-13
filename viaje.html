@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
 <meta charset="UTF-8">
 <title>Nuestros Viajes</title>
 
@@ -17,14 +16,22 @@ height:100vh;
 overflow:hidden;
 }
 
+/* PANEL */
+
 #panelTexto{
 width:420px;
 padding:40px;
-background:rgba(0,0,0,0.75);
+background:
+linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),
+url("viaje.jpg");
+background-size:cover;
+background-position:center;
 overflow:auto;
 }
 
-h1{font-size:34px;}
+h1{
+font-size:34px;
+}
 
 p{
 font-size:18px;
@@ -35,6 +42,8 @@ line-height:1.6;
 flex:1;
 position:relative;
 }
+
+/* POPUP */
 
 #popup{
 position:absolute;
@@ -72,38 +81,42 @@ scroll-snap-align:center;
 cursor:pointer;
 }
 
+/* VISOR */
+
 #visor{
 position:fixed;
 top:0;
 left:0;
 width:100%;
 height:100%;
-background:black;
 display:none;
 justify-content:center;
 align-items:center;
 z-index:50;
+background-size:cover;
+background-position:center;
 }
 
 #visor img{
-max-width:95%;
-max-height:95%;
+max-width:90%;
+max-height:90%;
+border-radius:10px;
 }
 
-#paisLabel{
+/* CONTADOR */
+
+#contadorFotos{
 position:absolute;
 top:30px;
-left:50%;
-transform:translateX(-50%);
-font-size:34px;
-font-weight:bold;
-opacity:0;
-transition:0.6s;
-pointer-events:none;
+right:40px;
+color:white;
+font-size:22px;
+background:rgba(0,0,0,0.5);
+padding:8px 14px;
+border-radius:10px;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -127,9 +140,7 @@ son los momentos que vivimos juntos ❤️
 
 </div>
 
-<div id="globo">
-<div id="paisLabel"></div>
-</div>
+<div id="globo"></div>
 
 <div id="popup">
 <div id="cerrar">Cerrar</div>
@@ -137,6 +148,7 @@ son los momentos que vivimos juntos ❤️
 </div>
 
 <div id="visor">
+<div id="contadorFotos"></div>
 <img id="visorImg">
 </div>
 
@@ -149,12 +161,8 @@ son los momentos que vivimos juntos ❤️
 
 <script>
 
-/* VARIABLES FOTOS */
-
 let fotosActuales=[];
 let indiceFoto=0;
-
-/* ESCENA */
 
 const container=document.getElementById("globo");
 
@@ -170,11 +178,13 @@ container.clientWidth/window.innerHeight,
 camera.position.z=3;
 
 const renderer=new THREE.WebGLRenderer({antialias:true});
+
 renderer.setSize(container.clientWidth,window.innerHeight);
 
 container.appendChild(renderer.domElement);
 
 const controls=new THREE.OrbitControls(camera,renderer.domElement);
+
 controls.enableDamping=true;
 
 /* LUCES */
@@ -182,7 +192,9 @@ controls.enableDamping=true;
 scene.add(new THREE.AmbientLight(0xffffff,0.6));
 
 const light=new THREE.DirectionalLight(0xffffff,1);
+
 light.position.set(5,3,5);
+
 scene.add(light);
 
 /* ESTRELLAS */
@@ -205,9 +217,10 @@ starGeo.setAttribute(
 new THREE.Float32BufferAttribute(starVertices,3)
 );
 
-const starMat=new THREE.PointsMaterial({color:0xffffff});
-
-const stars=new THREE.Points(starGeo,starMat);
+const stars=new THREE.Points(
+starGeo,
+new THREE.PointsMaterial({color:0xffffff})
+);
 
 scene.add(stars);
 
@@ -244,7 +257,7 @@ transparent:true
 
 scene.add(clouds);
 
-/* LAT LON */
+/* CONVERSION LAT LON */
 
 function latLon(lat,lon,r){
 
@@ -263,7 +276,7 @@ r*Math.sin(phi)*Math.sin(theta)
 
 const markers=[];
 
-function marcador(lat,lon,flag,fotos,pais){
+function marcador(lat,lon,flag,fotos){
 
 const tex=loader.load(flag);
 
@@ -275,13 +288,15 @@ sprite.position.copy(latLon(lat,lon,1.05));
 
 sprite.scale.set(0.18,0.12,1);
 
-sprite.userData={fotos,pais};
+sprite.userData={fotos};
 
 earth.add(sprite);
 
 markers.push(sprite);
 
 }
+
+/* PAISES */
 
 /* PAISES */
 
@@ -305,6 +320,7 @@ marcador(18.01,-76.79,"https://flagcdn.com/w80/jm.png",
 
 marcador(22.32,114.17,"https://flagcdn.com/w80/hk.png",
 ["hk1.jpg","hk2.jpg","hk3.jpg","hk4.jpg","hk5.jpg","hk6.jpg","hk7.jpg","hk8.jpg","hk9.jpg","hk10.jpg","hk11.jpg","hk12.jpg","hk13.jpg","hk14.jpg","hk15.jpg","hk16.jpg"],"Hong Kong");
+
 
 /* CLICK */
 
@@ -336,12 +352,6 @@ if(hit.length>0){
 
 const data=hit[0].object.userData;
 
-const label=document.getElementById("paisLabel");
-label.innerText=data.pais;
-label.style.opacity=1;
-
-setTimeout(()=>label.style.opacity=0,2000);
-
 let html="";
 
 fotosActuales=data.fotos;
@@ -359,6 +369,7 @@ document.getElementById("popup").style.display="block";
 }
 
 renderer.domElement.addEventListener("click",detectar);
+
 renderer.domElement.addEventListener("touchstart",detectar);
 
 /* VISOR */
@@ -367,73 +378,19 @@ function abrirFoto(i){
 
 indiceFoto=i;
 
-document.getElementById("visorImg").src=fotosActuales[indiceFoto];
+const visor=document.getElementById("visor");
 
-document.getElementById("visor").style.display="flex";
-
-}
-
-function siguienteFoto(){
-
-indiceFoto++;
-
-if(indiceFoto>=fotosActuales.length){
-indiceFoto=0;
-}
+visor.style.display="flex";
 
 document.getElementById("visorImg").src=fotosActuales[indiceFoto];
 
-}
+visor.style.backgroundImage=
+`linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)),url(${fotosActuales[indiceFoto]})`;
 
-function anteriorFoto(){
-
-indiceFoto--;
-
-if(indiceFoto<0){
-indiceFoto=fotosActuales.length-1;
-}
-
-document.getElementById("visorImg").src=fotosActuales[indiceFoto];
+document.getElementById("contadorFotos").innerText=
+(indiceFoto+1)+" / "+fotosActuales.length;
 
 }
-
-/* TECLADO */
-
-document.addEventListener("keydown",(e)=>{
-
-if(document.getElementById("visor").style.display==="flex"){
-
-if(e.key==="ArrowRight") siguienteFoto();
-
-if(e.key==="ArrowLeft") anteriorFoto();
-
-}
-
-});
-
-/* SWIPE */
-
-let touchStartX=0;
-
-document.getElementById("visor").addEventListener("touchstart",(e)=>{
-touchStartX=e.changedTouches[0].screenX;
-});
-
-document.getElementById("visor").addEventListener("touchend",(e)=>{
-
-let touchEndX=e.changedTouches[0].screenX;
-
-if(touchEndX < touchStartX-50){
-siguienteFoto();
-}
-
-if(touchEndX > touchStartX+50){
-anteriorFoto();
-}
-
-});
-
-/* CERRAR */
 
 document.getElementById("visor").onclick=function(){
 this.style.display="none";
@@ -459,14 +416,6 @@ requestAnimationFrame(animate);
 controls.update();
 
 clouds.rotation.y+=0.0005;
-
-markers.forEach((m,i)=>{
-
-const s=0.18+Math.sin(Date.now()*0.003+i)*0.02;
-
-m.scale.set(s,s*0.66,1);
-
-});
 
 renderer.render(scene,camera);
 
