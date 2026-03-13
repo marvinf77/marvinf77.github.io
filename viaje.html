@@ -95,12 +95,14 @@ align-items:center;
 z-index:50;
 background-size:cover;
 background-position:center;
+transition:background-image 0.6s ease;
 }
 
 #visor img{
 max-width:90%;
 max-height:90%;
 border-radius:10px;
+transition:opacity 0.4s ease;
 }
 
 /* CONTADOR */
@@ -257,7 +259,7 @@ transparent:true
 
 scene.add(clouds);
 
-/* CONVERSION LAT LON */
+/* LAT LON */
 
 function latLon(lat,lon,r){
 
@@ -295,8 +297,6 @@ earth.add(sprite);
 markers.push(sprite);
 
 }
-
-/* PAISES */
 
 /* PAISES */
 
@@ -369,7 +369,6 @@ document.getElementById("popup").style.display="block";
 }
 
 renderer.domElement.addEventListener("click",detectar);
-
 renderer.domElement.addEventListener("touchstart",detectar);
 
 /* VISOR */
@@ -391,6 +390,8 @@ document.getElementById("contadorFotos").innerText=
 (indiceFoto+1)+" / "+fotosActuales.length;
 
 }
+
+/* CERRAR */
 
 document.getElementById("visor").onclick=function(){
 this.style.display="none";
@@ -422,6 +423,105 @@ renderer.render(scene,camera);
 }
 
 animate();
+
+/* ------------------ */
+/* NUEVO: CAMBIO FOTO */
+/* ------------------ */
+
+function siguienteFoto(){
+
+indiceFoto++;
+
+if(indiceFoto>=fotosActuales.length){
+indiceFoto=0;
+}
+
+actualizarFoto();
+
+}
+
+function anteriorFoto(){
+
+indiceFoto--;
+
+if(indiceFoto<0){
+indiceFoto=fotosActuales.length-1;
+}
+
+actualizarFoto();
+
+}
+
+function actualizarFoto(){
+
+const visor=document.getElementById("visor");
+const img=document.getElementById("visorImg");
+
+/* fade out */
+
+img.style.opacity=0;
+
+setTimeout(()=>{
+
+img.src=fotosActuales[indiceFoto];
+
+visor.style.backgroundImage=
+`linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)),url(${fotosActuales[indiceFoto]})`;
+
+document.getElementById("contadorFotos").innerText=
+(indiceFoto+1)+" / "+fotosActuales.length;
+
+/* fade in */
+
+img.style.opacity=1;
+
+},200);
+
+}
+
+/* FLECHAS TECLADO */
+
+document.addEventListener("keydown",(e)=>{
+
+if(document.getElementById("visor").style.display=="flex"){
+
+if(e.key==="ArrowRight"){
+siguienteFoto();
+}
+
+if(e.key==="ArrowLeft"){
+anteriorFoto();
+}
+
+}
+
+});
+
+/* SWIPE CELULAR */
+
+let touchStartX=0;
+
+const visor=document.getElementById("visor");
+
+visor.addEventListener("touchstart",(e)=>{
+
+touchStartX=e.changedTouches[0].screenX;
+
+});
+
+visor.addEventListener("touchend",(e)=>{
+
+let touchEndX=e.changedTouches[0].screenX;
+
+if(touchEndX < touchStartX-50){
+siguienteFoto();
+}
+
+if(touchEndX > touchStartX+50){
+anteriorFoto();
+}
+
+});
 
 </script>
 
